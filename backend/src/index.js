@@ -17,6 +17,8 @@ const PORT = process.env.PORT;
 const __dirname = path.resolve();
 
 app.use(express.json());
+
+app.set('trust proxy', 1);
 app.use(cookieParser());
 app.use(
   cors({
