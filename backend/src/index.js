@@ -2,34 +2,36 @@ import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-
 import path from "path";
 
 import { connectDB } from "./lib/db.js";
-
 import authRoutes from "./routes/auth.route.js";
 import messageRoutes from "./routes/message.route.js";
 import { app, server } from "./lib/socket.js";
 
 dotenv.config();
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 5000;
 const __dirname = path.resolve();
 
+// Middleware order important hai
 app.use(express.json());
-
-app.set('trust proxy', 1);
+app.set("trust proxy", 1);
 app.use(cookieParser());
+
+// CORS fix
 app.use(
   cors({
-    origin: "true",
+    origin: true, // ✅ Boolean true
     credentials: true,
   })
 );
 
+// Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
 
+// Production static files
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../frontend/dist")));
 

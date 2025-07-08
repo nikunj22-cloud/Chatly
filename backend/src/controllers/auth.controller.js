@@ -84,6 +84,11 @@ export const logout = (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
+// // हिस्सा	मतलब
+// res.cookie(...)	यह response के साथ एक cookie सेट करता है
+// "jwt"	यह cookie का नाम है – यहाँ "jwt" मतलब JWT (JSON Web Token)
+// ""	cookie की value को खाली string किया जा रहा है
+// { maxAge: 0 }	इसका मतलब है कि यह cookie अब से 0 milliseconds में expire हो जाएगी, यानी तुरंत delete हो जाएगी
 
 export const updateProfile = async (req, res) => {
   try {
