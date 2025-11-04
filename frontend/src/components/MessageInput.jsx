@@ -31,11 +31,14 @@ const MessageInput = () => {
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!text.trim() && !imagePreview) return;
-
+    let base64Image = null;
+    if (imagePreview) {
+      base64Image = imagePreview.split(",")[1];
+    }
     try {
       await sendMessage({
         text: text.trim(),
-        image: imagePreview,
+        image: base64Image,
       });
 
       // Clear form
