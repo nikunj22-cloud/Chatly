@@ -22,7 +22,10 @@ app.use(cookieParser());
 // CORS fix
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://chatly-frontend.vercel.app"],
+    origin: [
+      "http://localhost:5173",
+      "https://chatly-gamma-five.vercel.app", // ✅ Your new deployed frontend
+    ],
     credentials: true,
   })
 );
