@@ -2,6 +2,7 @@ import { create } from "zustand";
 import toast from "react-hot-toast";
 import { axiosInstance } from "../lib/axios";
 import { useAuthStore } from "./useAuthStore";
+import { uploadImageToCloudinary } from "../lib/cloudinary"; // ✅ Import
 
 export const useChatStore = create((set, get) => ({
   messages: [],
@@ -33,13 +34,33 @@ export const useChatStore = create((set, get) => ({
       set({ isMessagesLoading: false });
     }
   },
+
+  // ✅ UPDATED sendMessage
   sendMessage: async (messageData) => {
     const { selectedUser, messages } = get();
     try {
-      const res = await axiosInstance.post(`/messages/send/${selectedUser._id}`, messageData);
+      let finalMessageData = { ...messageData };
+
+      // Agar image file hai (not base64), toh Cloudinary pe upload karo
+      if (messageData.image && messageData.image instanceof File) {
+        toast.loading("Uploading image...", { id: "image-upload" });
+
+        const imageUrl = await uploadImageToCloudinary(messageData.image);
+        finalMessageData.image = imageUrl; // Base64 ki jagah URL bhejo
+
+        toast.success("Image uploaded!", { id: "image-upload" });
+      }
+
+      const res = await axiosInstance.post(
+        `/messages/send/${selectedUser._id}`,
+        finalMessageData
+      );
+
       set({ messages: [...messages, res.data] });
+      toast.success("Message sent!");
     } catch (error) {
-      toast.error(error.response.data.message);
+      console.error("Send message error:", error);
+      toast.error(error.response?.data?.message || "Failed to send message");
     }
   },
 
@@ -50,7 +71,8 @@ export const useChatStore = create((set, get) => ({
     const socket = useAuthStore.getState().socket;
 
     socket.on("newMessage", (newMessage) => {
-      const isMessageSentFromSelectedUser = newMessage.senderId === selectedUser._id;
+      const isMessageSentFromSelectedUser =
+        newMessage.senderId === selectedUser._id;
       if (!isMessageSentFromSelectedUser) return;
 
       set({
