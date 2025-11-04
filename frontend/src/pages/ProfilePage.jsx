@@ -11,6 +11,7 @@ const ProfilePage = () => {
     if (!file) return;
 
     const reader = new FileReader();
+    //readAsDataURL(file) → file ko base64 string me convert karta h (image preview ya upload ke liye).
 
     reader.readAsDataURL(file);
 

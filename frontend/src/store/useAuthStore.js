@@ -3,9 +3,10 @@ import { axiosInstance } from "../lib/axios.js";
 import toast from "react-hot-toast";
 import { io } from "socket.io-client";
 
-const BASE_URL = import.meta.env.MODE === "development" 
-  ? "http://localhost:5001" 
-  : "https://chatly-gizs.onrender.com";
+const BASE_URL =
+  import.meta.env.MODE === "development"
+    ? "http://localhost:5000"
+    : "https://chatly-gizs.onrender.com";
 
 export const useAuthStore = create((set, get) => ({
   authUser: null,
@@ -17,6 +18,7 @@ export const useAuthStore = create((set, get) => ({
   socket: null,
 
   checkAuth: async () => {
+    //check auth function name h zustand m likhne ka tarika
     try {
       const res = await axiosInstance.get("/auth/check");
 
@@ -34,16 +36,32 @@ export const useAuthStore = create((set, get) => ({
     set({ isSigningUp: true });
     try {
       const res = await axiosInstance.post("/auth/signup", data);
+      console.log("Signup response:", res.data);
       set({ authUser: res.data });
       toast.success("Account created successfully");
       get().connectSocket();
     } catch (error) {
-      toast.error(error.response.data.message);
+      console.error("Signup error:", error);
+
+      // More robust error handling
+      if (error.response) {
+        // Server responded with error status
+        const errorMessage = error.response.data?.message || "Signup failed";
+        toast.error(errorMessage);
+        console.error("Server error:", error.response.data);
+      } else if (error.request) {
+        // Network error
+        toast.error("Network error. Please check your connection.");
+        console.error("Network error:", error.request);
+      } else {
+        // Other error
+        toast.error("An unexpected error occurred");
+        console.error("Error:", error.message);
+      }
     } finally {
       set({ isSigningUp: false });
     }
   },
-
   login: async (data) => {
     set({ isLoggingIn: true });
     try {
