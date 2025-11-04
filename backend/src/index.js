@@ -1,3 +1,4 @@
+// server.js
 import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
@@ -7,25 +8,22 @@ import path from "path";
 import { connectDB } from "./lib/db.js";
 import authRoutes from "./routes/auth.route.js";
 import messageRoutes from "./routes/message.route.js";
-import { app, server } from "./lib/socket.js";
+import { setupSocket } from "./lib/socket.js"; // ✅ yahan change
 
 dotenv.config();
 
+const app = express();
 const PORT = process.env.PORT || 5000;
 const __dirname = path.resolve();
 
-// Middleware order important hai
+// Middlewares
 app.use(express.json());
 app.set("trust proxy", 1);
 app.use(cookieParser());
 
-// CORS fix
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "https://chatly-gamma-five.vercel.app", // ✅ Your new deployed frontend
-    ],
+    origin: ["http://localhost:5173", "https://chatly-gamma-five.vercel.app"],
     credentials: true,
   })
 );
@@ -37,13 +35,16 @@ app.use("/api/messages", messageRoutes);
 // Production static files
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../frontend/dist")));
-
   app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
+    res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
   });
 }
 
+// ✅ Create HTTP + Socket server here
+const server = setupSocket(app);
+
+// Start server
 server.listen(PORT, () => {
-  console.log("server is running on PORT:" + PORT);
+  console.log("✅ Server running on PORT:", PORT);
   connectDB();
 });

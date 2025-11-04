@@ -1,41 +1,45 @@
+// lib/socket.js
 import { Server } from "socket.io";
 import http from "http";
-import express from "express";
 
-const app = express();
-const server = http.createServer(app);
+let io;
+const userSocketMap = {}; // { userId: socketId }
 
-const io = new Server(server, {
-  cors: {
-    origin: "*",
-  },
-});
+export function setupSocket(app) {
+  const server = http.createServer(app);
+
+  io = new Server(server, {
+    cors: {
+      origin: ["http://localhost:5173", "https://chatly-gamma-five.vercel.app"],
+      credentials: true,
+    },
+  });
+
+  io.on("connection", (socket) => {
+    console.log("A user connected:", socket.id);
+
+    const userId = socket.handshake.query.userId;
+    if (userId) userSocketMap[userId] = socket.id;
+
+    io.emit("getOnlineUsers", Object.keys(userSocketMap));
+
+    socket.on("disconnect", () => {
+      console.log("A user disconnected:", socket.id);
+      delete userSocketMap[userId];
+      io.emit("getOnlineUsers", Object.keys(userSocketMap));
+    });
+  });
+
+  return server;
+}
 
 export function getReceiverSocketId(userId) {
   return userSocketMap[userId];
 }
 
-// used to store online users
-const userSocketMap = {}; // {userId: socketId}
+export { io };
 
-io.on("connection", (socket) => {
-  console.log("A user connected", socket.id);
-
-  const userId = socket.handshake.query.userId;
-  if (userId) userSocketMap[userId] = socket.id;
-
-  // io.emit() is used to send events to all the connected clients
-  io.emit("getOnlineUsers", Object.keys(userSocketMap));
-
-  socket.on("disconnect", () => {
-    console.log("A user disconnected", socket.id);
-    delete userSocketMap[userId];
-    io.emit("getOnlineUsers", Object.keys(userSocketMap));
-  });
-});
-
-export { io, app, server };
-//ya toh isme ya config folder m 
+//ya toh isme ya config folder m
 //✅ Socket.io Code – Summary (Tere Words + Interview Friendly)
 // Sir, ye code Express server ke sath ek WebSocket server establish karta hai using Socket.io.
 
@@ -65,4 +69,3 @@ export { io, app, server };
 // Soch le chat room me tu enter karta hai — tu online ho gaya
 // → Server ne sabko bataya "Nikunj online ho gaya"
 // → Agar tu chale jaye, to sabko bataya gaya "Nikunj offline ho gaya"
-
