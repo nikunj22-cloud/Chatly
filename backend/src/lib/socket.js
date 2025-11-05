@@ -1,4 +1,3 @@
-// lib/socket.js
 import { Server } from "socket.io";
 import http from "http";
 
@@ -11,7 +10,8 @@ export function setupSocket(app) {
   io = new Server(server, {
     cors: {
       origin: ["http://localhost:5173", "https://chatly-gamma-five.vercel.app"],
-      credentials: true,
+      methods: ["GET", "POST"], // ✅ REQUIRED
+      credentials: true, // ✅ REQUIRED
     },
   });
 
