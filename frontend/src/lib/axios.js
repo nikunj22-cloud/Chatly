@@ -18,16 +18,24 @@ export const axiosInstance = axios.create({
 // Add request interceptor for debugging
 axiosInstance.interceptors.request.use(
   (config) => {
+    const token = localStorage.getItem("token");
+
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
     console.log(
       `Making ${config.method?.toUpperCase()} request to:`,
-      config.url
+      config.url,
+      "with token:",
+      token ? "YES" : "NO"
     );
+
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
+
 
 // Add response interceptor for better error handling
 axiosInstance.interceptors.response.use(
