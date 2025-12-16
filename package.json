@@ -7,7 +7,7 @@
     "node": "24.x"
   },
   "scripts": {
-    "build": "cd frontend && npm install && npm run build",
+    "build": "cd frontend && npm install --legacy-peer-deps && npx vite build",
     "start": "npm run start --prefix backend"
   },
   "keywords": [],
