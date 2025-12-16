@@ -12,7 +12,5 @@
       "dest": "src/index.js"
     }
   ],
-  "env": {
-    "NODE_ENV": "production"
-  }
+  "outputDirectory": "public"
 }
