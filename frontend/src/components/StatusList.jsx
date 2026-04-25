@@ -12,7 +12,7 @@ const StatusList = () => {
   const fetchStatuses = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("http://localhost:5000/api/status", {
+      const res = await axios.get("https://chatly-v7tj.vercel.app/api/status", {
         withCredentials: true,
       });
       setStatuses(res.data || []);

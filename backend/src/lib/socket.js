@@ -9,7 +9,7 @@ export function setupSocket(app) {
 
   io = new Server(server, {
     cors: {
-      origin: ["http://localhost:5173"],
+      origin: ["https://chatly-v7tj.vercel.app/"],
       methods: ["GET", "POST"], // ✅ REQUIRED
       credentials: true, // ✅ REQUIRED
     },

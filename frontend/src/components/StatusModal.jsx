@@ -23,7 +23,7 @@ const StatusModal = ({ isOpen, onClose }) => {
 
     try {
       setLoading(true);
-      await axios.post("http://localhost:5000/api/status/upload", formData, {
+      await axios.post("https://chatly-v7tj.vercel.app/api/status/upload", formData, {
         withCredentials: true,
       });
       setText("");

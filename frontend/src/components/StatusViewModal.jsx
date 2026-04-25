@@ -10,7 +10,7 @@ const StatusViewModal = ({ status, onClose }) => {
 
     axios
       .post(
-        `http://localhost:5000/api/status/${status._id}/view`,
+        `https://chatly-v7tj.vercel.app/api/status/${status._id}/view`,
         {},
         { withCredentials: true }
       )
