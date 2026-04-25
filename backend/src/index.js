@@ -1,4 +1,4 @@
-// server.js
+// backend/src/index.js ya server.js
 import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
@@ -8,7 +8,9 @@ import path from "path";
 import { connectDB } from "./lib/db.js";
 import authRoutes from "./routes/auth.route.js";
 import messageRoutes from "./routes/message.route.js";
-import { setupSocket } from "./lib/socket.js"; // ✅ yahan change
+import { setupSocket } from "./lib/socket.js";
+import statusRoutes from "./routes/status.route.js";
+import groupRoutes from "./routes/group.route.js";
 
 dotenv.config();
 import { v2 as cloudinary } from "cloudinary";
@@ -22,6 +24,9 @@ cloudinary.config({
 const app = express();
 const PORT = process.env.PORT || 5000;
 const __dirname = path.resolve();
+
+// ❌ Yahan multer nahi chahiye
+// koi upload.single yahan mat lagao
 
 // Middlewares
 app.use(express.json({ limit: "10mb" }));
@@ -40,6 +45,8 @@ app.use(
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
+app.use("/api/status", statusRoutes); // ✅ yahan sirf routes
+app.use("/api/groups", groupRoutes);
 
 // Production static files
 if (process.env.NODE_ENV === "production") {
@@ -49,10 +56,8 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-// ✅ Create HTTP + Socket server here
 const server = setupSocket(app);
 
-// Start server
 server.listen(PORT, () => {
   console.log("✅ Server running on PORT:", PORT);
   connectDB();

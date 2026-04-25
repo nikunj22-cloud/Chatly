@@ -2,6 +2,7 @@ import { generateToken } from "../lib/utils.js";
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import cloudinary from "../lib/cloudinary.js";
+import { io } from "../lib/socket.js";
 
 export const signup = async (req, res) => {
   const { fullName, email, password } = req.body;
@@ -11,7 +12,9 @@ export const signup = async (req, res) => {
     }
 
     if (password.length < 6) {
-      return res.status(400).json({ message: "Password must be at least 6 characters" });
+      return res
+        .status(400)
+        .json({ message: "Password must be at least 6 characters" });
     }
 
     const user = await User.findOne({ email });
@@ -93,18 +96,27 @@ export const logout = (req, res) => {
 export const updateProfile = async (req, res) => {
   try {
     const { profilePic } = req.body;
-    const userId = req.user._id;
+    const userId = req.user._id.toString();
 
     if (!profilePic) {
       return res.status(400).json({ message: "Profile pic is required" });
     }
 
     const uploadResponse = await cloudinary.uploader.upload(profilePic);
+
     const updatedUser = await User.findByIdAndUpdate(
       userId,
-      { profilePic: uploadResponse.secure_url },
+      {
+        profilePic: uploadResponse.secure_url + "?t=" + Date.now(),
+      },
       { new: true }
     );
+
+    // 🔥 SOCKET EVENT
+    io.emit("profile-updated", {
+      userId: updatedUser._id,
+      profilePic: updatedUser.profilePic,
+    });
 
     res.status(200).json(updatedUser);
   } catch (error) {
@@ -112,7 +124,6 @@ export const updateProfile = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-
 export const checkAuth = (req, res) => {
   try {
     res.status(200).json(req.user);

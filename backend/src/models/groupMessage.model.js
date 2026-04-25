@@ -1,36 +1,24 @@
 import mongoose from "mongoose";
 
-const messageSchema = new mongoose.Schema(
+const groupMessageSchema = new mongoose.Schema(
   {
+    groupId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Group",
+      required: true,
+    },
     senderId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
-    receiverId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-    text: {
-      type: String,
-    },
-
-    // OLD field: keep for backward compatibility
-    image: {
-      type: String,
-    },
-
-    // NEW generic media fields
-    mediaUrl: {
-      type: String,
-    },
+    text: String,
+    mediaUrl: String,
     mediaType: {
       type: String,
       enum: ["image", "video", null],
       default: null,
     },
-
     reactions: [
       {
         userId: {
@@ -40,14 +28,19 @@ const messageSchema = new mongoose.Schema(
         emoji: String,
       },
     ],
-    isRead: {
-      type: Boolean,
-      default: false,
-    },
+    readBy: [
+      {
+        userId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+        readAt: Date,
+      },
+    ],
   },
   { timestamps: true }
 );
 
-const Message = mongoose.model("Message", messageSchema);
+const GroupMessage = mongoose.model("GroupMessage", groupMessageSchema);
 
-export default Message;
+export default GroupMessage;

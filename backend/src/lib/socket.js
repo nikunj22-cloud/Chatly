@@ -9,7 +9,7 @@ export function setupSocket(app) {
 
   io = new Server(server, {
     cors: {
-      origin: ["http://localhost:5173", "https://chatly-gamma-five.vercel.app"],
+      origin: ["http://localhost:5173"],
       methods: ["GET", "POST"], // ✅ REQUIRED
       credentials: true, // ✅ REQUIRED
     },

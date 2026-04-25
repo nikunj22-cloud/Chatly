@@ -1,11 +1,36 @@
 import { useChatStore } from "../store/useChatStore";
-
+import { useGroupStore } from "../store/useGroupStore";
+import { useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 import NoChatSelected from "../components/NoChatSelected";
 import ChatContainer from "../components/ChatContainer";
+import GroupChatContainer from "../components/GroupChatContainer";
 
 const HomePage = () => {
-  const { selectedUser } = useChatStore();
+  const {
+    selectedUser,
+    subscribeToProfileUpdates,
+    unsubscribeFromProfileUpdates,
+  } = useChatStore();
+
+  const { selectedGroup, subscribeToGroupMessages } = useGroupStore();
+
+  useEffect(() => {
+    subscribeToProfileUpdates();
+
+    return () => {
+      unsubscribeFromProfileUpdates();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (selectedGroup) {
+      const unsubscribe = subscribeToGroupMessages();
+      return () => {
+        if (unsubscribe) unsubscribe();
+      };
+    }
+  }, [selectedGroup?._id]);
 
   return (
     <div className="h-screen bg-base-200">
@@ -14,11 +39,18 @@ const HomePage = () => {
           <div className="flex h-full rounded-lg overflow-hidden">
             <Sidebar />
 
-            {!selectedUser ? <NoChatSelected /> : <ChatContainer />}
+            {!selectedUser && !selectedGroup ? (
+              <NoChatSelected />
+            ) : selectedUser ? (
+              <ChatContainer />
+            ) : (
+              <GroupChatContainer />
+            )}
           </div>
         </div>
       </div>
     </div>
   );
 };
+
 export default HomePage;

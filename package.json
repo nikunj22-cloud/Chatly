@@ -7,7 +7,7 @@
     "node": "24.x"
   },
   "scripts": {
-    "build": "cd frontend && npm install && npm run build",
+    "build": " npm install ",
     "start": "npm run start --prefix backend"
   },
   "keywords": [],
